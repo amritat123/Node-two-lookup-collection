@@ -32,10 +32,6 @@ const userSchema = new mongoose.Schema({
     phone:{
         type: Number,
         required: true
-    },
-    pinCode:{
-        type: Number,
-        required: true
     }
 });
 

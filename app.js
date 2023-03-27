@@ -13,13 +13,10 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// use multer route
 // express path.....
 app.use("/uploads", express.static("uploads"));
 
 app.use("", UserRoute);
-
-
 app.use("", addRoute);
 // server running on port 3000
 const port = process.env.PORT || 3000;
