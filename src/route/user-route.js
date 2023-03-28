@@ -23,13 +23,8 @@ const upload = multer({
   
 // uploading excel sheet into database---------------------
 
-router.post('/add_user',upload.single('image') , UserController.addUser , (req,res) => {
-  importExeclDatatoDatabase( __dirname ,+ './uploads/'+req.file.filename);
-  res.json({
-    message: 'File uploaded successfully' , 'file': req.file,
-  });
-});
+router.post('/add_user',upload.single('image') , UserController.addUser)
 
-router.post('/add', UserController.importData);
+router.get('/add', UserController.exportUser);
 
 module.exports = router;

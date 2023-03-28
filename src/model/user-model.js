@@ -21,10 +21,10 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    image: {
-        type: String,
-        required: true
-    },
+    // image: {
+    //     type: String,
+    //     required: true
+    // },
     gender:{
         type: String,
         required: true

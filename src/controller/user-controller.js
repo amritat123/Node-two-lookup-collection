@@ -2,108 +2,64 @@ const UserModel = require("../model/user-model");
 const bcrypt = require("bcrypt");
 const niv = require("node-input-validator");
 const fs = require("fs");
-const ExcelJS = require("exceljs");
-const excelToJson = require("convert-excel-to-json");
-const MongoClient = require('../database/db');
+const excelJs = require("exceljs");
+require("moment");
+const readXlsxFile = require("read-excel-file/node");
 
-exports.exportData = async (req, res) => {
+// exporting data to csv file-----
+exports.exportUser = async (req, res) => {
   try {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("users");
-    console.log("1")
-    // wht we need inside of bookSheet --
+    const workbook = new excelJs.Workbook();
+    const worksheet = workbook.addWorksheet("My Invoice");
     worksheet.columns = [
-      {
-        Headers: "S.No",
-        key: "s_no",
-        Headers: "Name",
-        key: " name",
-        Headers: "Email",
-        key: "email",
-        Headers: "Phone",
-        key: "phone",
-        Headers: "Gender",
-        key: "gender",
-        Headers: "Image",
-        key: "image",
-        Headers: "Password",
-        key: "password"
-      },
+      { header: "ID", key: "_id" },
+      { header: "name", key: "name" },
+      { header: "Email", key: "email" },
+      { header: "Password", key: "password" },
+      { header: "Date", key: "date" },
+      { header: "Gender", key: "gender" },
+      { header: "Phone", key: "phone" },
     ];
     let counter = 1;
-    const userData = await UserModel.find();
-    console.log("2")
-    userData.forEach((user) => {
-      user.s_no = counter;
-      worksheet.addRow(user);
-      counter++;
-    });
-    console.log("3")
+    let userData = await UserModel.find();
+    console.log(userData);
 
+    for (let index = 0; index < userData.length; index++) {
+      let data = userData[index];
+
+      console.log(data);
+      data.s_no = counter;
+      worksheet.addRow(data);
+      counter++;
+    }
     worksheet.getRow(1).eachCell((cell) => {
       cell.font = { bold: true };
     });
-    console.log("4")
 
-    // Downloading csv file --- 
     res.setHeader(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheatml.sheet"
     );
-    console.log("5")
-    res.setHeader("Content-Disposition", `attachment; filename=users.xlsx`);
-    console.log("6")
-    return  workbook.xlsx.write(res).then(()=> {
-      res.status(200).json({
-        message: "Data has been exported successfully",
-        success: true,
-      });
-    }) 
-  } catch (error) {
-    console.log(error , "100000000000000000");
-    res.status(500).json({
-      message: error.message,
+
+    res.setHeader("Content-Disposition", `attatchement;filename=user.xlsx`);
+    return workbook.xlsx.write(res).then(() => {
+      // console.log("res", res);
+      res.status(200).send({ message: "Successfully exported data to csv" });
     });
+  } catch (error) {
+    res.status(400).json({ message: error.message, status: false });
   }
 };
-
-// import the excel file to the mongodb database
-exports.importData = async (req, res) => {
-    // Read the Excel file to the json data
-    const excelData = excelToJson({
-      sourceFile: filePath,
-      // excel sheet name is optional
-      sheetName: [{
-        name : "users.xlsx",
-
-        Headers : {
-          rows: 1
-        },
-        columnToKey : {
-          A: "s_no",
-          B: "name",
-          C: "email",
-          D: "phone",
-          E: "gender"
-        }
-
-      }]
-    });
-  console.log(excelData);
-  //  Insert json object to mongodb 
-  MongoClient.connect ( url , { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    let dbo = dbo.db("exceldb");
-    dbo.collection("users").insertMany(excelData, (err, result) => {
-      if (err) throw err;
-      console.log(" records inserted");
-      db.close();
-    });
-  });
-  fs.unlinkSync(filePath);
-  
-}
-
+// read the xlsx file----
+// file path --
+// readXlsxFile("./users.xlsx").then((rows) => {
+//   console.log(rows);
+//   for (i in rows) {
+//     for (j in rows[i]) {
+//       console.log(rows[i][j]);
+//     }
+//   }
+// });
 // add user
 exports.addUser = async (req, res) => {
   let objValidation = new niv.Validator(req.body, {
@@ -171,4 +127,3 @@ exports.addUser = async (req, res) => {
     });
   }
 };
-
