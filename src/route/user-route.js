@@ -25,6 +25,6 @@ const upload = multer({
 
 router.post('/add_user',upload.single('image') , UserController.addUser)
 
-router.get('/add', UserController.exportUser);
+router.get('/export_user', UserController.exportUser);
 
 module.exports = router;

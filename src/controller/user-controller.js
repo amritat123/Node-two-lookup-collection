@@ -1,16 +1,17 @@
 const UserModel = require("../model/user-model");
+const AddressModel = require("../model/address-model");
 const bcrypt = require("bcrypt");
 const niv = require("node-input-validator");
 const fs = require("fs");
 const excelJs = require("exceljs");
-require("moment");
 const readXlsxFile = require("read-excel-file/node");
 
 // exporting data to csv file-----
 exports.exportUser = async (req, res) => {
   try {
+    // ################ For User column only ####################
     const workbook = new excelJs.Workbook();
-    const worksheet = workbook.addWorksheet("My Invoice");
+    const worksheet = workbook.addWorksheet("user");
     worksheet.columns = [
       { header: "ID", key: "_id" },
       { header: "name", key: "name" },
@@ -20,19 +21,47 @@ exports.exportUser = async (req, res) => {
       { header: "Gender", key: "gender" },
       { header: "Phone", key: "phone" },
     ];
-    let counter = 1;
+    let counterOne = 1;
     let userData = await UserModel.find();
     console.log(userData);
 
+    // user export loop
     for (let index = 0; index < userData.length; index++) {
       let data = userData[index];
-
       console.log(data);
-      data.s_no = counter;
+      data.s_no = counterOne;
       worksheet.addRow(data);
-      counter++;
+      counterOne++;
     }
     worksheet.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true };
+    });
+
+    // address column
+    const AddressWorkBook = new excelJs.Workbook();
+    const AddressWorksheet = workbook.addWorksheet("address");
+
+    AddressWorksheet.columns = [
+      { header: "ID", key: "_id" },
+      { header: "Address", key: "address" },
+      { header: "City", key: "city" },
+      { header: "State", key: "state" },
+      { header: "Pincode", key: "pincode" },
+    ];
+
+    let counterTwo = 1;
+    let addressData = await AddressModel.find();
+    console.log(addressData);
+    // address export loop
+    for (let index = 0; index < addressData.length; index++) {
+      let data = addressData[index];
+
+      console.log(data);
+      data.s_no = counterTwo;
+      AddressWorksheet.addRow(data);
+      counterTwo++;
+    }
+    AddressWorksheet.getRow(1).eachCell((cell) => {
       cell.font = { bold: true };
     });
 
@@ -40,15 +69,16 @@ exports.exportUser = async (req, res) => {
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheatml.sheet"
     );
-
+    console.log("72")
+    res.setHeader("Content-Disposition", `attatchement;filename=address.xlsx`);
     res.setHeader("Content-Disposition", `attatchement;filename=user.xlsx`);
-    return workbook.xlsx.write(res).then(() => {
-      // console.log("res", res);
-      res.status(200).send({ message: "Successfully exported data to csv" });
-    });
+    workbook.xlsx.write(res)
+    
   } catch (error) {
-    res.status(400).json({ message: error.message, status: false });
-  }
+    res.status(400).json({ message: error.message,
+      status: false,
+    message : " not in progress"});
+  };
 };
 // read the xlsx file----
 // file path --
