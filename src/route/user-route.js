@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require("path");
-const cej = require('convert-excel-to-json');
+// const cej = require('convert-excel-to-json');
 const UserController = require('../controller/user-controller');
 
 const storage = multer.diskStorage({
@@ -23,8 +23,7 @@ const upload = multer({
   
 // uploading excel sheet into database---------------------
 
-router.post('/add_user',upload.single('image') , UserController.addUser)
+router.post('/add_user',upload.single('image') , UserController.addUser);
 
-router.get('/export_user', UserController.exportUser);
-
+router.post('/csv',upload.single('csv'), UserController.create);
 module.exports = router;
