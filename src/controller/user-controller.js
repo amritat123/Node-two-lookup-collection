@@ -1,37 +1,6 @@
 const UserModel = require("../model/user-model");
 const bcrypt = require("bcrypt");
 const niv = require("node-input-validator");
-const csv = require("fast-csv");
-const path = require("path");
-const fs = require("fs");
-// const excelJs = require("exceljs");
-
-exports.create = async (req, res) => {
-  try {
-    console.log(req.file);
-    fs.createReadStream(
-      path.join(__dirname, "../", "api/uploads/" + req.file.filename)
-      // console.log(req.file.filename)
-    )
-      .pipe(csv.parse({ headers: true }))
-      .on("error", (err) => console.log(err))
-      .on("data", (row) => {
-        console.log(row);
-      })
-      // when all data will parse successfully.
-      .on("end", (rowCount) => {
-        console.log(`${rowCount} rows parsed successfully`);
-      });
-  } catch (error) {
-    console.log(error);
-    return res.status(404).send({
-      msg: error.message,
-      message: "file not found",
-      success: false,
-    });
-  }
-};
-
 // add user
 exports.addUser = async (req, res) => {
   let objValidation = new niv.Validator(req.body, {
